@@ -9,8 +9,6 @@ var cors = require('cors');
 const router = express.Router();
 
 
-console.log(config.secrtKey);
-
 router.post("/", auth, async(req, res) => {
     let status, error;
     const { token, amount } = req.body;
@@ -26,7 +24,7 @@ router.post("/", auth, async(req, res) => {
         });
 
         status = 'success';
-        console.log(token)
+        // console.log(token)
         let item = new PremiumModel(req.body);
         item.user_id = req.tokenData._id;
         item.user_name = req.tokenData.name;

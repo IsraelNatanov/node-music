@@ -6,10 +6,9 @@ require('dotenv').config();
 const Stripe = require('stripe')(process.env.SECRET_KEY);
 
 require("./db/mongoConnect")
-const indexR = require("./routes/index");
-const employeesR = require("./routes/employees");
+
+
 const usersR = require("./routes/users");
-const foodsR = require("./routes/foods");
 const spotifyR = require("./routes/spotify");
 const artistsR = require("./routes/artists");
 const albumsR = require("./routes/albums");
@@ -38,9 +37,6 @@ app.all('*', function(req, res, next) {
 var cors = require('cors');
 app.use(cors())
 app.use("/", spotifyR);
-app.use("/employees", employeesR);
-
-app.use("/foods", foodsR);
 app.use("/users", usersR);
 app.use("/artists", artistsR)
 app.use("/albums", albumsR)
@@ -54,7 +50,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/payment", stripeRoute);
 
 
-// app.use("/spotify", spotifyR);
+
 
 
 

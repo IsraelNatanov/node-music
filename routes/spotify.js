@@ -7,18 +7,18 @@ const { ArtistModel } = require("../models/artistsModel");
 const { PlylistSpotifyModel } = require("../models/plylistSpotifyModel");
 const { TrackModel } = require("../models/trackModel");
 const { TracksSpotufyPlModel } = require("../models/tracksSpotufyPlModel");
+const {config} = require("../config/secret")
 const router = express.Router();
 
-
-
-// credentials are optional
-var spotifyApi = new SpotifyWebApi({
-    clientId: 'ec589991f1b244fe850b466055d3dfca',
-    clientSecret: 'f68026e4316e41c388b87c3b7d5c2af4',
+// כאן מוגדרים הפרטים החשובים שלי באתר מפתחים של ספוטיפי
+const spotifyApi = new SpotifyWebApi({
+    clientId: config.clientId,
+    clientSecret: config.clientSecret,
     redirectUri: 'http://localhost:9000/callback'
 });
 
-const t = "BQColBrRJElDIcU2zr-LhHAWucH2yPtsCOAxRFbD-SaMhaozoRD6IKaCeCH48SKi2UWL5ctaUlHpSxc2CBHrAOTOHTmUV5oZrWmyVatkG8F5MUBi_6EatIMi08-e2KAP1z1F_SRaEy-s9OchWDHcnHZQZr-wD1euqai4gN1r36FNfdwWwdAR3XdkCfiy8aC1_k0ZGMxlKJVO3_uPojTTqzJwaD4WSR2q7lyvZAjKN2nON8k5bwy8KRzrfAvAQf2BTEn8ghIg-qp0QxBbZXC3tFRAGdZsE1GmhCL3vD-x5bn9aakQxmmVWHe1SK4k5gFRKCujdp8bNRCyWlv2Kw"
+const token = "BQColBrRJElDIcU2zr-LhHAWucH2yPtsCOAxRFbD-SaMhaozoRD6IKaCeCH48SKi2UWL5ctaUlHpSxc2CBHrAOTOHTmUV5oZrWmyVatkG8F5MUBi_6EatIMi08-e2KAP1z1F_SRaEy-s9OchWDHcnHZQZr-wD1euqai4gN1r36FNfdwWwdAR3XdkCfiy8aC1_k0ZGMxlKJVO3_uPojTTqzJwaD4WSR2q7lyvZAjKN2nON8k5bwy8KRzrfAvAQf2BTEn8ghIg-qp0QxBbZXC3tFRAGdZsE1GmhCL3vD-x5bn9aakQxmmVWHe1SK4k5gFRKCujdp8bNRCyWlv2Kw"
+// כאן אני גדיר להיכן אוכל לקבל טוקן
 router.get('/', (req, res, next) => {
     res.redirect(spotifyApi.createAuthorizeURL([
         "ugc-image-upload",
@@ -43,6 +43,7 @@ router.get('/', (req, res, next) => {
 
     ]))
 })
+// כאן אני מקבל את token from spotify 
 router.get('/callback', (req, res, next) => {
     console.log('reqquery', req.query)
     const code = req.query.code
@@ -51,7 +52,7 @@ router.get('/callback', (req, res, next) => {
     spotifyApi.authorizationCodeGrant(req.query.code).then((response) => {
         // token = response.body.access_token;
 
-        // t = response.body.access_token;
+    
 
         console.log(response.body.access_token)
         res.send(JSON.stringify(response))
@@ -59,9 +60,10 @@ router.get('/callback', (req, res, next) => {
     })
 })
 
-spotifyApi.setAccessToken(t)
+spotifyApi.setAccessToken(token)
 
 
+// כאן אני מקבל את הפרטים שלי בחשבון
 const getMy = () => {
         spotifyApi.getMe()
             .then(function(data) {
@@ -72,6 +74,8 @@ const getMy = () => {
 
     }
     // getMy()
+
+    // כאן אני מקבל את כל השירים שקיימים בפלייליסטים שלי באתר שלהם ומאחסן אותם אצלי במונגו
 const getPlylistTracks = async() => {
         await spotifyApi.getUserPlaylists("2yrw48m3kx7za8dhnrhbnhxo8")
             .then(async function(dat) {
@@ -106,6 +110,8 @@ const getPlylistTracks = async() => {
             })
     }
     // getPlylistTracks()
+
+    // כאן אני מקבל את כל הרשימות פלייליסטים שלי שקיימים באתר שלהם
 const getPlylist = async() => {
         const data = await spotifyApi.getUserPlaylists("2yrw48m3kx7za8dhnrhbnhxo8")
             .then(function(data) {
@@ -125,6 +131,8 @@ const getPlylist = async() => {
             });
     }
     // getPlylist()
+
+    //
 const searchArtists = async() => {
         const artists = await spotifyApi.searchArtists("חיים ישראל")
         console.log('artist', artists)
@@ -132,6 +140,8 @@ const searchArtists = async() => {
     }
     // searchArtists()
 
+
+    // כאן אני מאחסון רשימות של זמרים אצלי במונגו היישר מאתר שלהם
 const getArtistss = async() => {
         const artistss = await spotifyApi.getArtists(['70287pcNpILjcpoBl0soPs', '54HicbsQOHeibnnFCMtLwl', '5eVh2c6WuigJCj1WrHfnd5', '5GCh3ZazIVWg8eKb5Akv0q', '3VTm1513t2LL1mSKzzyQuj', '0NLEL3BBW71Oshh5R7wpJl', '3Y0YvS2crBLVS9eA5jX8Ux', '5H64fYkQmqjX0bS4bplq8F', '0kF5nmRrCc9oZpAkVbWaUt', '4aTDB7CQyMNOLQsCpAS9EW'])
             .then(function(data) {
@@ -151,6 +161,8 @@ const getArtistss = async() => {
             });
     }
     // getArtistss()
+
+    // כאן אני מאחסן רשימות של אלבומים למונגו של כל רשימות הזמרים שהכנסתי
 const getArtistAlbumss = async() => {
     const artistss = await spotifyApi.getArtists(['70287pcNpILjcpoBl0soPs', '54HicbsQOHeibnnFCMtLwl', '5eVh2c6WuigJCj1WrHfnd5', '5GCh3ZazIVWg8eKb5Akv0q', '3VTm1513t2LL1mSKzzyQuj', '0NLEL3BBW71Oshh5R7wpJl', '3Y0YvS2crBLVS9eA5jX8Ux', '5H64fYkQmqjX0bS4bplq8F', '0kF5nmRrCc9oZpAkVbWaUt', '4aTDB7CQyMNOLQsCpAS9EW'])
         .then(async function(data) {
@@ -183,6 +195,9 @@ const getArtistAlbumss = async() => {
 }
 
 // getArtistAlbumss()
+
+
+//כאן אני מאחסן את כל השירים במונגות שהאלבומים של כל הזמרים שקיימים אצלי במונגו
 const getAlbumTrackss = async() => {
     const artistss = await spotifyApi.getArtists(['70287pcNpILjcpoBl0soPs', '54HicbsQOHeibnnFCMtLwl', '5eVh2c6WuigJCj1WrHfnd5', '5GCh3ZazIVWg8eKb5Akv0q', '3VTm1513t2LL1mSKzzyQuj', '0NLEL3BBW71Oshh5R7wpJl', '3Y0YvS2crBLVS9eA5jX8Ux', '5H64fYkQmqjX0bS4bplq8F', '0kF5nmRrCc9oZpAkVbWaUt', '4aTDB7CQyMNOLQsCpAS9EW'])
         .then(async function(data) {

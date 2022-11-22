@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
-const {config} = require("../config/secret")
+const { config } = require("../config/secret")
+
+
+
 // role - נכניס ידנית ברואט
 // date_Creaded- המסד נתונים מייצר לבד עם התאריך של השרת
 let userSchema = new mongoose.Schema({
@@ -23,8 +26,12 @@ exports.UserModel = mongoose.model("users", userSchema);
 // מילה סודית כדי לאבטח את הטוקן שלא כל אחד יוכל לייצר אותו
 // ואת התוקף של הטוקן מהרגע שהוא נוצר
 exports.genToken = (user_id, name, role) => {
-    let token = jwt.sign({ _id: user_id, name: name, role: role },  config.tokenSecret, { expiresIn: "180mins" });
+    let token = jwt.sign({ _id: user_id, name: name, role: role }, config.tokenSecret, { expiresIn: "180mins" });
     return token;
+}
+exports.refrchToken = (user_id) => {
+    let refrchToken = jwt.sign({ _id: user_id }, config.refrchTokenSecret, { expiresIn: "180mins" });
+    return refrchToken;
 }
 
 exports.validateUser = (_reqBody) => {

@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const { validateUser, UserModel, validateLogin, genToken } = require("../models/userModel");
 const { auth } = require("../middlewares/auth");
 const { default: axios } = require("axios");
+let refrchTokens = [];
 
 const router = express.Router();
 
@@ -86,7 +87,11 @@ router.post("/login", async(req, res) => {
         }
         // נדווח שהכל בסדר בהמשך נשלח טוקן
         let newToken = genToken(user._id, user.name, user.role)
-        res.json({ token: newToken })
+        let refrchToken = genToken(user._id)
+        refrchTokens.push(refrchToken)
+        res.json({ token: newToken, refrchToken })
+
+
     } catch (err) {
         console.log(err);
         res.status(500).json({ msg: "There is problem, try again later" })

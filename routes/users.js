@@ -99,7 +99,7 @@ router.post("/login", async(req, res) => {
         const expired_at = new Date();
         expired_at.setDate(expired_at.getDate() + 7);
         let token = new TokenModel()
-        token.user_id = user.id,
+        token.user_id = user._id,
             token.token = refreshToken,
             token.expired_at = expired_at
 
@@ -107,7 +107,7 @@ router.post("/login", async(req, res) => {
 
         token.save();
         // נדווח שהכל בסדר בהמשך נשלח טוקן
-        let newToken = genToken(user._id, user.name, user.role)
+        let newToken = genToken(user._id)
 
         res.json({ token: newToken })
 
@@ -118,5 +118,56 @@ router.post("/login", async(req, res) => {
     }
 
 });
+
+router.post("/refrechToken", async(req, res) => {
+
+    try {
+        const refreshToken = req.cookies['refreshToken'];
+        
+
+        const payload = jwt.verify(refreshToken, "refresh_secret");
+
+        if (!payload) {
+            return res.status(401).send({
+                message: 'unauthenticated'
+            });
+        }
+
+        const dbToken = await TokenModel.findOne({
+            user_id: payload.id,
+        });
+
+        if (!dbToken) {
+            return res.status(401).send({
+                message: 'unauthenticated'
+            });
+        }
+
+      
+        let token = genToken(payload.id)
+
+        res.send({
+            token
+        })
+    } catch (e) {
+        return res.status(401).send({
+            message: 'unauthenticated'
+        });
+    }
+})
+
+
+router.post("/logout", async(req, res) => {
+
+    const refreshToken = req.cookies['refreshToken'];
+
+    await TokenModel.deleteOne({token: refreshToken});
+
+    res.cookie('refreshToken', '', {maxAge: 0});
+
+    res.send({
+        message: 'success'
+    });
+})
 
 module.exports = router;

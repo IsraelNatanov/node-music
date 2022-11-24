@@ -1,10 +1,11 @@
 const express = require("express");
 // יודע להצפין סיסמאות
 const bcrypt = require("bcrypt");
-
+const jwt = require("jsonwebtoken");
 const { validateUser, UserModel, validateLogin, genToken } = require("../models/userModel");
 const { auth } = require("../middlewares/auth");
 const { default: axios } = require("axios");
+const { TokenModel } = require("../models/tokenModel");
 let refrchTokens = [];
 
 const router = express.Router();
@@ -85,11 +86,30 @@ router.post("/login", async(req, res) => {
             // 401 - שגיאת אבטחה
             return res.status(401).json({ msg: "Password worng" });
         }
+
+        const refreshToken = jwt.sign({
+            id: user._id
+        }, "refresh_secret", { expiresIn: '1w' });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000 //7 days
+        });
+
+        const expired_at = new Date();
+        expired_at.setDate(expired_at.getDate() + 7);
+        let token = new TokenModel()
+        token.user_id = user.id,
+            token.token = refreshToken,
+            token.expired_at = expired_at
+
+
+
+        token.save();
         // נדווח שהכל בסדר בהמשך נשלח טוקן
         let newToken = genToken(user._id, user.name, user.role)
-        let refrchToken = genToken(user._id)
-        refrchTokens.push(refrchToken)
-        res.json({ token: newToken, refrchToken })
+
+        res.json({ token: newToken })
 
 
     } catch (err) {

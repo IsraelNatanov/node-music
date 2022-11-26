@@ -38,7 +38,10 @@ app.all('*', function(req, res, next) {
     next();
 });
 var cors = require('cors');
-app.use(cors())
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200'],
+    credentials: true
+}));
 app.use("/", spotifyR);
 app.use("/users", usersR);
 app.use("/artists", artistsR)

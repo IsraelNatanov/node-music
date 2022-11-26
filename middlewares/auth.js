@@ -2,10 +2,13 @@ const jwt = require("jsonwebtoken");
 
 
 exports.auth = (req,res,next) => {
-  let token = req.header("x-api-key");
+  
+  let token = req.header('Authorization')?.split(" ")[1] || "";
   // בודק אם בכלל נשלח בהידר קוד של טוקן
   if(!token){
-    return res.status(401).json({msg:"You must send token to be in this endpoint 55555"})
+    return res.status(401).send({
+      message: 'unauthenticated'
+  });
   }
   try{
     // בדיקה אם הטוקן בתוקף או תקין ומקודד את המידע בתוכו

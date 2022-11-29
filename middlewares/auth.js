@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 exports.auth = (req,res,next) => {
   
-  let token = req.header('Authorization')?.split(" ")[1] || "";
+  let token = req.header('x-api-key');
   // בודק אם בכלל נשלח בהידר קוד של טוקן
   if(!token){
     return res.status(401).send({

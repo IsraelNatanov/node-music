@@ -26,7 +26,7 @@ exports.UserModel = mongoose.model("users", userSchema);
 // מילה סודית כדי לאבטח את הטוקן שלא כל אחד יוכל לייצר אותו
 // ואת התוקף של הטוקן מהרגע שהוא נוצר
 exports.genToken = (user_id) => {
-    let token = jwt.sign({ _id: user_id }, config.tokenSecret, { expiresIn: "30s" });
+    let token = jwt.sign({ _id: user_id }, config.tokenSecret, { expiresIn: "180mins" });
     return token;
 }
 exports.refrchToken = (user_id) => {

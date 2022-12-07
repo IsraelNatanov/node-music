@@ -19,6 +19,7 @@ const plylistSpotifyR = require("./routes/plylistSpotify");
 const tracksSpotufyPlR = require("./routes/tracksSpotufyPl");
 const trackMyPlylistR = require("./routes/trackMyPlylist");
 const stripeRoute = require("./routes/stripe");
+const send = require('./routes/sendWhatsapp');
 
 const app = express();
 // דואג שכל מידע משתקבל או יוצא בברירת מחדל יהיה בפורמט ג'ייסון
@@ -54,6 +55,7 @@ app.use("/trackMyPlylist", trackMyPlylistR);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/payment", stripeRoute);
+// app.use("/send", send);
 
 
 

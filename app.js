@@ -5,6 +5,7 @@ const http = require("http");
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const Stripe = require('stripe')(process.env.SECRET_KEY);
+const fileupload = require('express-fileupload');
 
 require("./db/mongoConnect")
 
@@ -21,7 +22,11 @@ const trackMyPlylistR = require("./routes/trackMyPlylist");
 const stripeRoute = require("./routes/stripe");
 const send = require('./routes/sendWhatsapp');
 
+
 const app = express();
+app.use(fileupload({
+    limits:{fieldSize:1024*1024*5}
+}))
 // דואג שכל מידע משתקבל או יוצא בברירת מחדל יהיה בפורמט ג'ייסון
 app.use(express.json());
 // להגדיר את תקיית פאבליק כתקייה של צד לקוח בשביל שנוכל לשים שם תמונות, ודברים של צד לקוח
@@ -43,7 +48,7 @@ app.use(cors({
     origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200'],
     credentials: true
 }));
-app.use("/", spotifyR);
+// app.use("/", spotifyR);
 app.use("/users", usersR);
 app.use("/artists", artistsR)
 app.use("/albums", albumsR)

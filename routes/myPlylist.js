@@ -1,6 +1,7 @@
 const express = require("express");
 const { auth } = require("../middlewares/auth");
 const { MyPlylistModel } = require("../models/myPlylistModel");
+const { PremiumModel } = require("../models/premiumModek");
 const { TrackMyPlylistPlModel } = require("../models/trackMyPlylist");
 const router = express.Router();
 
@@ -16,21 +17,19 @@ router.get("/", auth, async(req, res) => {
     }
 })
 router.post("/", auth, async(req, res) => {
-    // בדיקה שהמידע שמגיע מצד לקוח בבאדי
-    // תקין אם לא נחזיר שגיאה
-
+    let user = await PremiumModel.findOne({
+        user_id: req.tokenData._id
+    })
+    if (!user) return res.status(500).json({ msg: "no premium" })
+  
+  
     try {
-        // שמירה בקלוקשן את הרשומה החדשה שנשלחה
+      
         let item = new MyPlylistModel(req.body);
-        // מוסיף מאפיין של האיי די של היוזר
-        // שהוסיף את המשתמש
-        // ורק יוזר עם טוקן יוכל להוסיף
-        // האיי די מגיע מהטוקן
+     
         item.user_id = req.tokenData._id;
         await item.save();
-        // יחזיר את כל המאפיינים פלוס
-        // מאפיין איי די שנוצר לו בקולקשן
-        // ו __V
+    
         res.status(201).json(item);
     } catch (err) {
         console.log(err);

@@ -16,7 +16,8 @@ let userSchema = new mongoose.Schema({
     date_created: {
         type: Date,
         default: Date.now()
-    }
+    },
+    img_url:String,
 })
 
 exports.UserModel = mongoose.model("users", userSchema);

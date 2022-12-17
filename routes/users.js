@@ -6,6 +6,8 @@ const { validateUser, UserModel, validateLogin, genToken } = require("../models/
 const { auth } = require("../middlewares/auth");
 const { default: axios } = require("axios");
 const { TokenModel } = require("../models/tokenModel");
+const { fileImgUpload } = require("../util/uploadFile");
+
 let refrchTokens = [];
 
 const router = express.Router();
@@ -168,6 +170,21 @@ router.post("/logout", async(req, res) => {
     res.send({
         message: 'success'
     });
+})
+router.post("/upload",auth, async(req,res) => {
+    try{
+        let data = await fileImgUpload(req,"myFile","/users/"+req.tokenData._id,5,['.jpg','.png']);
+        if(data.fileName){
+            let updatedata = await UserModel.updateOne({_id: req.tokenData._id},
+                 {img_url:data.fileName});
+            res.json(updatedata)
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(400).json(err)
+    }
+  
 })
 
 module.exports = router;

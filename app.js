@@ -21,12 +21,16 @@ const tracksSpotufyPlR = require("./routes/tracksSpotufyPl");
 const trackMyPlylistR = require("./routes/trackMyPlylist");
 const stripeRoute = require("./routes/stripe");
 const send = require('./routes/sendWhatsapp');
+const map = require('./routes/maps')
+const geojson = require('./routes/geojson')
+const fullFeatures = require('./routes/fullFeatures')
 
 
 const app = express();
-app.use(fileupload({
-    limits:{fieldSize:1024*1024*5}
-}))
+// app.use(fileupload({
+//     limits:{fieldSize:1024*1024*5}
+// }))
+app.use(express.json({limit: '50mb'}));
 // דואג שכל מידע משתקבל או יוצא בברירת מחדל יהיה בפורמט ג'ייסון
 app.use(express.json());
 // להגדיר את תקיית פאבליק כתקייה של צד לקוח בשביל שנוכל לשים שם תמונות, ודברים של צד לקוח
@@ -45,7 +49,7 @@ app.all('*', function(req, res, next) {
 });
 var cors = require('cors');
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200'],
+    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200','http://localhost:3001'],
     credentials: true
 }));
 // app.use("/", spotifyR);
@@ -60,6 +64,9 @@ app.use("/trackMyPlylist", trackMyPlylistR);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/payment", stripeRoute);
+app.use("/map", map);
+app.use("/geojson", geojson);
+app.use("/fullFeatures", fullFeatures);
 // app.use("/send", send);
 
 

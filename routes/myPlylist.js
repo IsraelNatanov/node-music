@@ -1,14 +1,17 @@
 const express = require("express");
 const { auth } = require("../middlewares/auth");
 const { MyPlylistModel } = require("../models/myPlylistModel");
+const { PremiumModel } = require("../models/premiumModek");
 const { TrackMyPlylistPlModel } = require("../models/trackMyPlylist");
+const cloudinary = require('../util/cloudinary');
+
 const router = express.Router();
 
 
 router.get("/", auth, async(req, res) => {
     try {
-        let user = await MyPlylistModel.find({ user_id: req.tokenData._id });
-        res.json(user);
+        let allPlaylists = await MyPlylistModel.find({ user_id: req.tokenData._id });
+        res.json(allPlaylists);
     } catch (err) {
         console.log(err);
         res.status(500).json({ err_msg: "There is probelm , try again later", err })
@@ -16,22 +19,34 @@ router.get("/", auth, async(req, res) => {
     }
 })
 router.post("/", auth, async(req, res) => {
-    // בדיקה שהמידע שמגיע מצד לקוח בבאדי
-    // תקין אם לא נחזיר שגיאה
-
+    let user = await PremiumModel.findOne({
+        user_id: req.tokenData._id
+    })
+    if (!user) return res.status(500).json({ msg: "no premium" })
+    const {id, name, user_id, image} = req.body;
+  
+  
     try {
-        // שמירה בקלוקשן את הרשומה החדשה שנשלחה
-        let item = new MyPlylistModel(req.body);
-        // מוסיף מאפיין של האיי די של היוזר
-        // שהוסיף את המשתמש
-        // ורק יוזר עם טוקן יוכל להוסיף
-        // האיי די מגיע מהטוקן
-        item.user_id = req.tokenData._id;
-        await item.save();
-        // יחזיר את כל המאפיינים פלוס
-        // מאפיין איי די שנוצר לו בקולקשן
-        // ו __V
-        res.status(201).json(item);
+        const uploadedresult = await cloudinary.uploader.upload(image,{
+            upload_preset: "online-shop"
+        })
+        
+      
+            let item = new MyPlylistModel({
+                id,
+                name,
+                user_id:req.tokenData._id,
+                image:uploadedresult
+
+
+                
+
+            });
+       
+    
+       await item.save();
+    
+        res.status(201).json({success: true, item});
     } catch (err) {
         console.log(err);
         res.status(500).json({ msg: "There is problem, try again later" })

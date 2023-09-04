@@ -5,8 +5,7 @@ const { config } = require("../config/secret")
 
 
 
-// role - נכניס ידנית ברואט
-// date_Creaded- המסד נתונים מייצר לבד עם התאריך של השרת
+
 let userSchema = new mongoose.Schema({
     name: String,
     email: String,
@@ -17,15 +16,12 @@ let userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    img_url:String,
+    img_url: String,
 })
 
 exports.UserModel = mongoose.model("users", userSchema);
 
-// פונקציה שמייצרת טוקן שמכיל בתוכו 
-// את איי די של המשתמש ורול שלו 
-// מילה סודית כדי לאבטח את הטוקן שלא כל אחד יוכל לייצר אותו
-// ואת התוקף של הטוקן מהרגע שהוא נוצר
+
 exports.genToken = (user_id) => {
     let token = jwt.sign({ _id: user_id }, config.tokenSecret, { expiresIn: "30s" });
     return token;

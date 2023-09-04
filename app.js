@@ -30,18 +30,17 @@ const app = express();
 // app.use(fileupload({
 //     limits:{fieldSize:1024*1024*5}
 // }))
-app.use(express.json({limit: '50mb'}));
-// דואג שכל מידע משתקבל או יוצא בברירת מחדל יהיה בפורמט ג'ייסון
+app.use(express.json({ limit: '50mb' }));
+
 app.use(express.json());
-// להגדיר את תקיית פאבליק כתקייה של צד לקוח בשביל שנוכל לשים שם תמונות, ודברים של צד לקוח
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(cookieParser());
 
-// שניתן לבצע בקשה מדפדפן מכל דומיין ולא דווקא הדומיין של השרת שלנו
 app.all('*', function(req, res, next) {
     if (!req.get('Origin')) return next();
-    // * - הרשאה לכל הדומיינים לעשות בקשה
+
     res.set('Access-Control-Allow-Origin', '*');
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
     res.set('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,x-api-key');
@@ -49,7 +48,7 @@ app.all('*', function(req, res, next) {
 });
 var cors = require('cors');
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200','http://localhost:3001'],
+    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200', 'http://localhost:3001'],
     credentials: true
 }));
 // app.use("/", spotifyR);
@@ -75,8 +74,8 @@ app.use("/fullFeatures", fullFeatures);
 
 
 
-// מייצר סרבר שמשתמש באפ של האקספרס
+
 const server = http.createServer(app);
 let port = process.env.PORT || "9000";
-// מאזין או לפורט של השרת שאנחנו נמצאים בו או 3000
+
 server.listen(port);

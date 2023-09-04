@@ -1,5 +1,5 @@
 const express = require("express");
-// יודע להצפין סיסמאות
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { validateUser, UserModel, validateLogin, genToken } = require("../models/userModel");
@@ -18,7 +18,7 @@ router.get("/", (req, res) => {
 
 
 
-// auth - פונקציית מידל וואר לראוטר שקודם עובר דרכה
+
 
 router.get("/userInfo", auth, async(req, res) => {
     try {
@@ -34,30 +34,30 @@ router.get("/userInfo", auth, async(req, res) => {
 
 
 router.post("/", async(req, res) => {
-    // לבדוק וולדזציה למידע שמגיע מהבאדי
+
     let validBody = validateUser(req.body);
     if (validBody.error) {
         return res.status(400).json(validBody.error.details);
     }
 
     try {
-        // להכין את השמירת מידע
+
         let user = new UserModel(req.body);
-        // להצפין את הסיסמא
+
         user.password = await bcrypt.hash(user.password, 10);
 
 
-        // ולהגדיר את הרול כיוזר רגיל
+
         user.role = "user";
-        // לשמור את הרשומה
+
         await user.save();
-        // מסתיר מהצד לקוח איך הסיסמא הוצפנה
+
         user.password = "******";
-        // להחזיר מידע לצד לקוח
+
         res.status(201).json(user)
     } catch (err) {
         if (err.code == 11000) {
-            // שגיאה אם המייל כבר קיים במסד נתונים
+
             return res.status(400).json({ msg: "Email already in system", code: 11000 })
         }
         console.log(err);
@@ -73,19 +73,19 @@ router.post("/login", async(req, res) => {
         return res.status(400).json(validBody.error.details);
     }
     try {
-        // בדיקה אם האימייל קיים בכלל בקולקשן
+
         let user = await UserModel.findOne({ email: req.body.email });
         if (!user) {
-            // 401 - שגיאת אבטחה
+
             return res.status(401).json({ msg: "Email/user not found" });
         }
-        // אם הסיסמא שנשלחה מהבאדי תואמת לסיסמא המוצפנת בקולקשן
+
         let validPassword = await bcrypt.compare(req.body.password, user.password)
 
 
 
         if (!validPassword) {
-            // 401 - שגיאת אבטחה
+
             return res.status(401).json({ msg: "Password worng" });
         }
 
@@ -108,7 +108,7 @@ router.post("/login", async(req, res) => {
 
 
         token.save();
-        // נדווח שהכל בסדר בהמשך נשלח טוקן
+
         let newToken = genToken(user._id)
 
         res.json({ token: newToken })
@@ -125,7 +125,7 @@ router.post("/refrechToken", async(req, res) => {
 
     try {
         const refreshToken = req.cookies['refreshToken'];
-        
+
 
         const payload = jwt.verify(refreshToken, "refresh_secret");
 
@@ -145,7 +145,7 @@ router.post("/refrechToken", async(req, res) => {
             });
         }
 
-      
+
         let token = genToken(payload.id)
 
         res.send({
@@ -163,28 +163,26 @@ router.post("/logout", async(req, res) => {
 
     const refreshToken = req.cookies['refreshToken'];
 
-    await TokenModel.deleteOne({token: refreshToken});
+    await TokenModel.deleteOne({ token: refreshToken });
 
-    res.cookie('refreshToken', '', {maxAge: 0});
+    res.cookie('refreshToken', '', { maxAge: 0 });
 
     res.send({
         message: 'success'
     });
 })
-router.post("/upload",auth, async(req,res) => {
-    try{
-        let data = await fileImgUpload(req,"myFile","/users/"+req.tokenData._id,5,['.jpg','.png']);
-        if(data.fileName){
-            let updatedata = await UserModel.updateOne({_id: req.tokenData._id},
-                 {img_url:data.fileName});
+router.post("/upload", auth, async(req, res) => {
+    try {
+        let data = await fileImgUpload(req, "myFile", "/users/" + req.tokenData._id, 5, ['.jpg', '.png']);
+        if (data.fileName) {
+            let updatedata = await UserModel.updateOne({ _id: req.tokenData._id }, { img_url: data.fileName });
             res.json(updatedata)
         }
-    }
-    catch(err){
+    } catch (err) {
         console.log(err);
         res.status(400).json(err)
     }
-  
+
 })
 
 module.exports = router;
